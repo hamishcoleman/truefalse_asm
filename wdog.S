@@ -25,18 +25,10 @@ OPEN_MAX	= 0xff
 
 error_none	= 0
 error_update	= 1
-error_bdflush	= 2
 
 .globl	_entry
 
 _entry:
-
-/* Make some data space (dunno why) */
-#if 0
-	movl	$0x100,%ebx
-	movl	$__NR_brk,%eax
-	int	$0x80
-#endif
 
 /* chdir("/"); */
 	movl	$rootd,%ebx
@@ -50,6 +42,13 @@ _entry:
 	int	$0x80
 	loop	1b
 
+/* open("/dev/watchdog",somthing) */
+	movl	$__NR_open,%eax
+	movl	$wdogd,%ebx
+	movl	xxxxx
+	int	$0x80
+	movl	%eax,$wdogh
+
 /* setsid(); */
 	movl	$__NR_setsid,%eax
 	int	$0x80
@@ -59,12 +58,11 @@ _entry:
 	testl	%eax,%eax
 	jle	1f
 	movl	$error_none,%ebx
+exit:
+	movl	$__NR_exit,%eax
+	int	$0x80
 	jmp	exit
 
-/* if (fork()) bflushd(); */
-1:	call	fork
-	testl	%eax,%eax
-	ja	bdflushd
 
 /* sigaction(SIGALRM, &sa); */
 1:	movl	$SIGALRM,%ebx
@@ -73,8 +71,8 @@ _entry:
 	movl	$__NR_sigaction,%eax
 	int	$0x80
 
-/* alarm(30); */
-	movl	$30,%ebx
+/* alarm(20); */
+	movl	$20,%ebx
 	movl	$__NR_alarm,%eax
 	int	$0x80
 
@@ -91,17 +89,8 @@ _entry:
 	movl	$1,%ebx
 	call	bdflush
 
+	call	watchdog
 	jmp	1b
-
-bdflushd:
-	movl	$0,%ebx
-	call	bdflush
-	movl	$error_bdflush,%ebx
-
-exit:
-	movl	$__NR_exit,%eax
-	int	$0x80
-	jmp	exit
 
 fork:
 	movl	$__NR_fork,%eax
@@ -114,11 +103,20 @@ bdflush:
 	int	$0x80
 	ret
 
+watchdog:
+	movl	$__NR_write,%eax
+	movl	$wdogh,%ebx
+	movl	$1,%ecx
+	int	$0x80
+	ret
+
 /* sigaction handler */
 handler:
 	ret
 
 rootd:		.asciz	"/"
+wdogd:		.asciz  "/dev/watchdog"
+wdogh:		.long	0
 sa:		.long	handler
 		.long	0
 		.long	0

@@ -25,18 +25,10 @@ OPEN_MAX	= 0xff
 
 error_none	= 0
 error_update	= 1
-error_bdflush	= 2
 
 .globl	_entry
 
 _entry:
-
-/* Make some data space (dunno why) */
-#if 0
-	movl	$0x100,%ebx
-	movl	$__NR_brk,%eax
-	int	$0x80
-#endif
 
 /* chdir("/"); */
 	movl	$rootd,%ebx
@@ -59,12 +51,11 @@ _entry:
 	testl	%eax,%eax
 	jle	1f
 	movl	$error_none,%ebx
+exit:
+	movl	$__NR_exit,%eax
+	int	$0x80
 	jmp	exit
 
-/* if (fork()) bflushd(); */
-1:	call	fork
-	testl	%eax,%eax
-	ja	bdflushd
 
 /* sigaction(SIGALRM, &sa); */
 1:	movl	$SIGALRM,%ebx
@@ -92,16 +83,6 @@ _entry:
 	call	bdflush
 
 	jmp	1b
-
-bdflushd:
-	movl	$0,%ebx
-	call	bdflush
-	movl	$error_bdflush,%ebx
-
-exit:
-	movl	$__NR_exit,%eax
-	int	$0x80
-	jmp	exit
 
 fork:
 	movl	$__NR_fork,%eax
