@@ -1,14 +1,5 @@
 CFLAGS= -Wall
 
-#.S.s:
-#	$(CPP) -traditional $< -o $*.s
-#.c.s:
-#	$(CC) $(CFLAGS) -S $<
-#.s.o:
-#	$(AS) -c -o $*.o $<
-#.c.o:
-#	$(CC) $(CFLAGS) -c $<
-
 AS=/usr/ix86-linuxaout/bin/as
 
 %:	%.S
@@ -23,14 +14,21 @@ AS=/usr/ix86-linuxaout/bin/as
 	$(LD) -m i386linux -r -o $* $<
 	chmod a+x $*
 
-all:	true false
+all:	true false bdflush pwd #swapon
 
-true:	true.S
-	$(CC) $(CFLAGS) -nostdlib -N -o $@ $<
+strip:	true false bdflush
+	strip true false bdflush
 
-false:	false.S
-	$(CC) $(CFLAGS) -nostdlib -N -o $@ $<
+clean:
+	rm -f true.o false.o bdflush.o true.s false.s bdflush.s *~
 
-bdflush:	bdflush.S
-	$(CC) $(CFLAGS) -nostdlib -N -o $@ $<
+clobber:	clean
+	rm -f true false bdflush
 
+dep:
+
+install:	true false
+	install -s -g bin -o bin -m a=rx true /bin
+	install -s -g bin -o bin -m a=rx false /bin
+	install -s -g bin -o bin -m a=rx bdflush /sbin
+	install -s -g bin -o bin -m a=rx pwd /bin
