@@ -14,16 +14,16 @@ AS=/usr/ix86-linuxaout/bin/as
 	$(LD) -m i386linux -r -o $* $<
 	chmod a+x $*
 
-all:	true false bdflush pwd #swapon
+all:	true false bdflush pwd swapon
 
-strip:	true false bdflush
-	strip true false bdflush
+strip:	true false bdflush pwd swapon
+	strip true false bdflush pwd swapon
 
 clean:
 	rm -f true.o false.o bdflush.o true.s false.s bdflush.s *~
 
 clobber:	clean
-	rm -f true false bdflush
+	rm -f true false bdflush pwd swapon
 
 dep:
 
