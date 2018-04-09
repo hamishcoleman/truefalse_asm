@@ -1,0 +1,17 @@
+Assembly language implementations of some simple unix utilities.  Written to
+prove that it was possible, and to show how small they could be.
+
+This was in the era before ELF binaries, so it is simpler to make a small
+executable.  However, this does mean that these examples are not going to work
+on any modern Linux system.
+
+None the less, the Makefile has been updated to allow compiling on modern
+systems.  The resulting binaries are not quite the same as those from the
+original compile
+
+- The original binaries are "OMAGIC", the binaries compiled with a current
+  toolchain are "QMAGIC"
+- The padding used changed from 0x90 (NOP) to 0x00
+- The original binaries were padded to an 8 byte boundary, the current
+  toolchain pads to a 4096 byte boundary
+
