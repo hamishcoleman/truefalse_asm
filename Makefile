@@ -1,6 +1,4 @@
-CFLAGS= -Wall
-
-AS=/usr/ix86-linuxaout/bin/as
+CFLAGS=-m32 -Wall
 
 %:	%.S
 %:	%.s
@@ -9,9 +7,9 @@ AS=/usr/ix86-linuxaout/bin/as
 %.s:	%.S
 	$(CPP) -o $*.s $<
 %.o:	%.s
-	$(AS) -o $*.o $<
+	$(AS) --32 -o $*.o $<
 %:	%.o
-	$(LD) -m i386linux -r -o $* $<
+	$(LD) -m i386linux -o $* $<
 	chmod a+x $*
 
 all:	true false bdflush pwd swapon
